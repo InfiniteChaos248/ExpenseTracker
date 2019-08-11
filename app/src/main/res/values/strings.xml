@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Expense Tracker</string>
+    <string name="main_button_1">Log new Expense</string>
+    <string name="main_button_2">Log new Income</string>
+    <string name="main_button_3">Add/Modify Category</string>
+    <string name="main_button_4">Report</string>
+    <string name="main_button_5">Transfer between wallets</string>
+    <string name="main_button_6">Add/Modify Wallet</string>
+    <string name="main_button_7">View Wallets</string>
+    <string name="expense_heading_0">1. Select a wallet</string>
+    <string name="expense_heading_1">2. Select a category</string>
+    <string name="expense_heading_2">3. Enter amount</string>
+    <string name="expense_heading_3">4. Enter a description or comment</string>
+    <string name="income_radio">income</string>
+    <string name="expense_radio">expense</string>
+    <string name="category_heading_1">1. Select a category type</string>
+    <string name="category_heading_2">2. Select to modify or Leave empty to add new category</string>
+    <string name="category_heading_3">3. Type new category name</string>
+    <string name="wallet_heading_1">1. Select to modify or leave empty to add new wallet</string>
+    <string name="wallet_heading_2">2. Type a new name</string>
+    <string name="wallet_heading_3">3. Enter starting amount (Will not be logged)</string>
+    <string name="transfer_heading_1">1. From</string>
+    <string name="transfer_heading_2">2. To</string>
+    <string name="transfer_heading_3">3. Enter transfer amount</string>
+</resources>
