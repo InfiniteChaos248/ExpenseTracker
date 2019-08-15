@@ -18,7 +18,7 @@
     <string name="category_heading_3">3. Type new category name</string>
     <string name="wallet_heading_1">1. Select to modify or leave empty to add new wallet</string>
     <string name="wallet_heading_2">2. Type a new name</string>
-    <string name="wallet_heading_3">3. Enter starting amount (Will not be logged)</string>
+    <string name="wallet_heading_3">3. Enter starting amount</string>
     <string name="transfer_heading_1">1. From</string>
     <string name="transfer_heading_2">2. To</string>
     <string name="transfer_heading_3">3. Enter transfer amount</string>

@@ -22,7 +22,7 @@ public class Wallet {
     public Wallet(String name, Integer amount) {
         this.name = name;
         this.amount = amount;
-    }
+}
 
     public Integer getId() {
         return id;

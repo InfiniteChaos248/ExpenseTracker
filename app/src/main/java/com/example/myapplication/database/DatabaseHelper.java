@@ -8,11 +8,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.myapplication.database.model.ActivityLog;
 import com.example.myapplication.database.model.Wallet;
 import com.example.myapplication.database.model.Category;
+import com.example.myapplication.utils.Constants;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -30,15 +36,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        Log.i("DB", "creating " + Wallet.TABLE_NAME + " table");
         sqLiteDatabase.execSQL(Wallet.CREATE_TABLE);
+        Log.i("DB", "creating " + Category.TABLE_NAME + " table");
         sqLiteDatabase.execSQL(Category.CREATE_TABLE);
+        Log.i("DB", "creating " + ActivityLog.TABLE_NAME + " table");
+        sqLiteDatabase.execSQL(ActivityLog.CREATE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Wallet.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Category.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ActivityLog.TABLE_NAME);
         onCreate(sqLiteDatabase);
+    }
+
+    private ContentValues getLogContentValues(Integer type){
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
+        SimpleDateFormat timeFormat = new SimpleDateFormat(Constants.TIME_FORMAT);
+        ContentValues values = new ContentValues();
+        values.put(ActivityLog.COLUMN_TYPE, type);
+        values.put(ActivityLog.COLUMN_LOG_DATE, dateFormat.format(new Date()));
+        values.put(ActivityLog.COLUMN_LOG_TIME, timeFormat.format(new Date()));
+        return values;
+    }
+
+    public long insertNewLogForNewWallet(Integer amount, Integer walletId) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = getLogContentValues(Constants.LOG_TYPE_ADD_WALLET);
+        values.put(ActivityLog.COLUMN_AMOUNT, amount);
+        values.put(ActivityLog.COLUMN_WALLET, walletId);
+
+        long id = db.insert(ActivityLog.TABLE_NAME, null, values);
+
+        db.close();
+
+        return id;
+
     }
 
     public long insertNewWallet(String name, Integer amount) {
@@ -49,9 +86,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(Wallet.COLUMN_NAME, name);
         values.put(Wallet.COLUMN_AMOUNT, amount);
 
-        long id = db.insert(Wallet.TABLE_NAME, null, values);
+        Long id = db.insert(Wallet.TABLE_NAME, null, values);
 
         db.close();
+
+        insertNewLogForNewWallet(amount, id.intValue());
 
         return id;
 

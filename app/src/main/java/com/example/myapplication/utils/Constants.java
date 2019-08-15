@@ -7,4 +7,17 @@ public class Constants {
     public static final String EMPTY_STRING = "";
     public static final Integer ZERO = 0;
 
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+    public static final String TIME_FORMAT = "hh:mm:ss";
+
+    public static final Integer LOG_TYPE_NEW_EXPENSE = 1;
+    public static final Integer LOG_TYPE_NEW_INCOME = 2;
+    public static final Integer LOG_TYPE_WALLET_TRANSFER = 3;
+    public static final Integer LOG_TYPE_REMOVE_WALLET = 4;
+    public static final Integer LOG_TYPE_MODIFY_WALLET = 5;
+    public static final Integer LOG_TYPE_ADD_WALLET = 6;
+    public static final Integer LOG_TYPE_REMOVE_CATEGORY = 7;
+    public static final Integer LOG_TYPE_MODIFY_CATEGORY = 8;
+    public static final Integer LOG_TYPE_ADD_CATEGORY = 9;
+
 }
