@@ -8,10 +8,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.example.myapplication.database.DatabaseHelper;
+import com.example.myapplication.database.model.Category;
+import com.example.myapplication.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,37 +22,52 @@ import java.util.List;
 public class CategoryActivity extends AppCompatActivity {
 
     private RadioGroup radioGroup;
-    private RadioButton typeRadioButton;
 
     private Spinner categorySpinner;
-    ArrayAdapter<String> categoryAdapter;
+    ArrayAdapter<Category> categoryAdapter;
 
     private EditText newCategoryTextView;
 
     private Button okButton;
     private Button cancelButton;
 
-    private List<String> categories;
     private Boolean isExpense;
     private String category;
+    private Integer categoryId;
+
+    private DatabaseHelper db;
+
+    private List<Category> incomeCategories = new ArrayList<>();
+    private List<Category> expenseCategories = new ArrayList<>();
+
+    private void setAdapter(List<Category> categories) {
+        categoryAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, categories);
+        categoryAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(categoryAdapter);
+    }
+
+    private void refreshCategories() {
+        List<Category> allCategories = db.getAllCategories();
+        incomeCategories = new ArrayList<>();
+        expenseCategories = new ArrayList<>();
+        incomeCategories.add(new Category(Constants.EMPTY_STRING, Constants.CATEGORY_TYPE_INCOME));
+        expenseCategories.add(new Category(Constants.EMPTY_STRING, Constants.CATEGORY_TYPE_EXPENSE));
+        for(Category category : allCategories){
+            if(category.getType() == Constants.CATEGORY_TYPE_INCOME){
+                incomeCategories.add(category);
+            } else if (category.getType() == Constants.CATEGORY_TYPE_EXPENSE) {
+                expenseCategories.add(category);
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
 
-        final List<String> expenseCategories = new ArrayList<>();
-        expenseCategories.add("");
-        expenseCategories.add("Food");
-        expenseCategories.add("Entertainment");
-        expenseCategories.add("Petrol");
-        expenseCategories.add("Groceries");
-
-        final List<String> incomeCategories = new ArrayList<>();
-        incomeCategories.add("");
-        incomeCategories.add("Salary");
-        incomeCategories.add("Friends");
-        incomeCategories.add("Family");
+        db = new DatabaseHelper(this);
+        refreshCategories();
 
         categorySpinner = findViewById(R.id.category_spinner);
 
@@ -61,16 +79,10 @@ public class CategoryActivity extends AppCompatActivity {
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 if(i == R.id.income_radio){
                     isExpense = false;
-                    categories = incomeCategories;
-                    categoryAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, categories);
-                    categoryAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-                    categorySpinner.setAdapter(categoryAdapter);
+                    setAdapter(incomeCategories);
                 } else if(i == R.id.expense_radio){
                     isExpense = true;
-                    categories = expenseCategories;
-                    categoryAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, categories);
-                    categoryAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-                    categorySpinner.setAdapter(categoryAdapter);
+                    setAdapter(expenseCategories);
                 }
             }
         });
@@ -79,13 +91,14 @@ public class CategoryActivity extends AppCompatActivity {
         categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String selectedItemText = (String) adapterView.getItemAtPosition(i);
-                category = selectedItemText;
+                Category selectedItem = (Category) adapterView.getItemAtPosition(i);
+                category = selectedItem.getName();
+                categoryId = selectedItem.getId();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                category = "";
+                category = Constants.EMPTY_STRING;
             }
         });
 
@@ -95,14 +108,22 @@ public class CategoryActivity extends AppCompatActivity {
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!newCategoryTextView.getText().toString().equalsIgnoreCase("")){
+                if(!newCategoryTextView.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)){
+                    String newName = newCategoryTextView.getText().toString();
+                    Integer type = isExpense ? Constants.CATEGORY_TYPE_EXPENSE : Constants.CATEGORY_TYPE_INCOME;
                     String toastText;
-                    if(category.equalsIgnoreCase("")){
+                    if(category.equalsIgnoreCase(Constants.EMPTY_STRING)){
                         toastText = "Adding new category : ";
+                        db.insertNewCategory(newName, type);
+                        refreshCategories();
+                        setAdapter(isExpense ? expenseCategories : incomeCategories);
                     } else {
                         toastText = "Modifying " + category + " into ";
+                        db.updateCategoryName(categoryId, newName);
+                        refreshCategories();
+                        setAdapter(isExpense ? expenseCategories : incomeCategories);
                     }
-                    toastText += newCategoryTextView.getText().toString();
+                    toastText += newName;
                     toastText += " to " + (isExpense ? ("expense") : ("income"));
                     Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_LONG).show();
                 } else{

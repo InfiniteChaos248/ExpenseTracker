@@ -32,7 +32,7 @@ import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.myapplication.com.example.myapplication.database.DatabaseHelper;
+import com.example.myapplication.database.DatabaseHelper;
 
 public class AndroidDatabaseManager extends Activity implements OnItemClickListener {
 

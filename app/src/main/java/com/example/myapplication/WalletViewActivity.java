@@ -12,8 +12,8 @@ import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 import android.graphics.Typeface;
 
-import com.example.myapplication.com.example.myapplication.database.DatabaseHelper;
-import com.example.myapplication.com.example.myapplication.database.com.example.myapplication.sqlite.model.Wallet;
+import com.example.myapplication.database.DatabaseHelper;
+import com.example.myapplication.database.model.Wallet;
 
 import java.util.ArrayList;
 import java.util.List;

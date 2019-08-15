@@ -1,4 +1,4 @@
-package com.example.myapplication.com.example.myapplication.database;
+package com.example.myapplication.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,9 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.example.myapplication.com.example.myapplication.database.com.example.myapplication.sqlite.model.Wallet;
+import com.example.myapplication.database.model.Wallet;
+import com.example.myapplication.database.model.Category;
 
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +31,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(Wallet.CREATE_TABLE);
+        sqLiteDatabase.execSQL(Category.CREATE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Wallet.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Category.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 
@@ -52,6 +54,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
 
         return id;
+
+    }
+
+    public int updateWalletName(Integer id, String name){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(Wallet.COLUMN_NAME, name);
+        values.put(Wallet.COLUMN_UPDATE_TS, new Timestamp(System.currentTimeMillis()).toString());
+
+        return db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(id)});
 
     }
 
@@ -79,6 +93,59 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    public List<Category> getAllCategories() {
+
+        List<Category> categories = new ArrayList<>();
+
+        String query = "SELECT * FROM " + Category.TABLE_NAME + " WHERE " + Category.COLUMN_ACTIVE + " = 1 ORDER BY " + Category.COLUMN_ID;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Category category = new Category();
+                category.setId(cursor.getInt(cursor.getColumnIndex(Category.COLUMN_ID)));
+                category.setName(cursor.getString(cursor.getColumnIndex(Category.COLUMN_NAME)));
+                category.setUpdateTs(Timestamp.valueOf(cursor.getString(cursor.getColumnIndex(Category.COLUMN_UPDATE_TS))));
+                category.setType(cursor.getInt(cursor.getColumnIndex(Category.COLUMN_TYPE)));
+
+                categories.add(category);
+            } while (cursor.moveToNext());
+        }
+        db.close();
+
+        return categories;
+
+    }
+
+    public long insertNewCategory(String name, Integer type) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(Category.COLUMN_NAME, name);
+        values.put(Category.COLUMN_TYPE, type);
+
+        long id = db.insert(Category.TABLE_NAME, null, values);
+
+        db.close();
+
+        return id;
+
+    }
+
+    public int updateCategoryName(Integer id, String name){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(Category.COLUMN_NAME, name);
+        values.put(Category.COLUMN_UPDATE_TS, new Timestamp(System.currentTimeMillis()).toString());
+
+        return db.update(Category.TABLE_NAME, values, Category.COLUMN_ID + " = ?", new String[] {Integer.toString(id)});
+
+    }
+
+    //for AndroidDatabaseManager
     public ArrayList<Cursor> getData(String Query){
         //get writable database
         SQLiteDatabase sqlDB = this.getWritableDatabase();

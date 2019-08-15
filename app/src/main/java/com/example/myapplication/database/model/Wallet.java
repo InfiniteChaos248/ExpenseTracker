@@ -1,4 +1,4 @@
-package com.example.myapplication.com.example.myapplication.database.com.example.myapplication.sqlite.model;
+package com.example.myapplication.database.model;
 
 import java.sql.Timestamp;
 
