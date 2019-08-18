@@ -29,12 +29,13 @@
 
     <TableLayout
         android:id="@+id/wallets_table"
-        android:layout_width="187dp"
-        android:layout_height="187dp"
         android:layout_marginTop="16dp"
+        android:padding="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
 
         <TableRow
             android:layout_width="match_parent"

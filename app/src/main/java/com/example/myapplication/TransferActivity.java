@@ -11,6 +11,10 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.myapplication.database.DatabaseHelper;
+import com.example.myapplication.database.model.Wallet;
+import com.example.myapplication.utils.Constants;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,19 +29,28 @@ public class TransferActivity extends AppCompatActivity {
     private EditText amountEditText;
 
     private String fromWallet;
+    private Integer fromWalletId;
     private String toWallet;
+    private Integer toWalletId;
     private Integer transferAmount;
+
+    private DatabaseHelper db;
+
+    private List<Wallet> walletList = new ArrayList<>();
+
+    private void refreshWalletList() {
+        walletList = new ArrayList<>();
+        walletList.add(new Wallet(Constants.EMPTY_STRING, Constants.ZERO));
+        walletList.addAll(db.getAllWallets());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transfer);
 
-        final List<String> walletCategories = new ArrayList<>();
-        walletCategories.add("");
-        walletCategories.add("Bank account : ICICI");
-        walletCategories.add("Cash");
-        walletCategories.add("Infosys smart card");
+        db = new DatabaseHelper(this);
+        refreshWalletList();
 
         fromWalletSpinner = findViewById(R.id.from_wallet_spinner);
         toWalletSpinner = findViewById(R.id.to_wallet_spinner);
@@ -47,7 +60,7 @@ public class TransferActivity extends AppCompatActivity {
 
         amountEditText = findViewById(R.id.amount);
 
-        ArrayAdapter<String> walletAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, walletCategories);
+        ArrayAdapter<Wallet> walletAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, walletList);
         walletAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         fromWalletSpinner.setAdapter(walletAdapter);
         toWalletSpinner.setAdapter(walletAdapter);
@@ -55,8 +68,9 @@ public class TransferActivity extends AppCompatActivity {
         fromWalletSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String selectedItemText = (String) adapterView.getItemAtPosition(i);
-                fromWallet = selectedItemText;
+                Wallet selectedItem = (Wallet) adapterView.getItemAtPosition(i);
+                fromWallet = selectedItem.getName();
+                fromWalletId = selectedItem.getId();
             }
 
             @Override
@@ -68,8 +82,9 @@ public class TransferActivity extends AppCompatActivity {
         toWalletSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String selectedItemText = (String) adapterView.getItemAtPosition(i);
-                toWallet = selectedItemText;
+                Wallet selectedItem = (Wallet) adapterView.getItemAtPosition(i);
+                toWallet = selectedItem.getName();
+                toWalletId = selectedItem.getId();
             }
 
             @Override
@@ -81,28 +96,30 @@ public class TransferActivity extends AppCompatActivity {
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(fromWallet == ""){
+                if(fromWallet.equalsIgnoreCase(Constants.EMPTY_STRING)){
                     Toast.makeText(getApplicationContext(), "Choose a wallet to transfer from", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(toWallet == ""){
+                if(toWallet.equalsIgnoreCase(Constants.EMPTY_STRING)){
                     Toast.makeText(getApplicationContext(), "Choose a wallet to transfer to", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if(toWallet == fromWallet){
-                    Toast.makeText(getApplicationContext(), "Not applicable", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Same wallet transfer not applicable", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(amountEditText.getText().toString().equalsIgnoreCase("")){
-                    Toast.makeText(getApplicationContext(), "Not applicable", Toast.LENGTH_SHORT).show();
+                if(amountEditText.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)){
+                    Toast.makeText(getApplicationContext(), "Amount not entered", Toast.LENGTH_SHORT).show();
                     return;
                 } else{
                     transferAmount = Integer.parseInt(amountEditText.getText().toString());
-                    if(transferAmount <= 0){
-                        Toast.makeText(getApplicationContext(), "Not applicable", Toast.LENGTH_SHORT).show();
+                    if(transferAmount <= Constants.ZERO){
+                        Toast.makeText(getApplicationContext(), "Cannot do empty transfers", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     Toast.makeText(getApplicationContext(), "Transferring amount " + transferAmount + " from " + fromWallet + " to " + toWallet, Toast.LENGTH_SHORT).show();
+                    String responseMessage = db.walletTransfer(fromWalletId, toWalletId, transferAmount);
+                    Toast.makeText(getApplicationContext(), responseMessage, Toast.LENGTH_LONG).show();
                 }
             }
         });

@@ -1,0 +1,17 @@
+dev queue:
+report generation
+
+dev enhancements:
+UI (obviously)
+clear entries or go back on submit
+better error handling
+code refactoring
+
+bugs/glitches:
+double tap, triple tap, other gesture controls
+
+notes:
+remove wallet, category needed? How to implement?
+look into react native to develop UI
+better understand activity lifecycle and android app development fundamentals, linux, etc.
+understand how SQLITE works

@@ -19,20 +19,20 @@ public class ActivityLog {
     public static final String COLUMN_LOG_TIME = "log_time";
     public static final String COLUMN_AMOUNT = "amount";
     public static final String COLUMN_CATEGORY = "category";
-    public static final String COLUMN_CATEGORY_S = "category_S";
+    public static final String COLUMN_NEW = "new";
     public static final String COLUMN_TYPE = "type";
-    public static final String COLUMN_WALLET = "wallet";
-    public static final String COLUMN_WALLET_S = "wallet_s";
+    public static final String COLUMN_WALLET_1 = "wallet1";
+    public static final String COLUMN_WALLET_2 = "wallet2";
     public static final String COLUMN_COMMENTS = "comments";
     public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
             COLUMN_LOG_DATE + " TEXT, " +
             COLUMN_LOG_TIME + " TEXT, " +
             COLUMN_AMOUNT + " INTEGER, " +
             COLUMN_CATEGORY + " INTEGER, " +
-            COLUMN_CATEGORY_S + " INTEGER, " +
+            COLUMN_NEW + " TEXT, " +
             COLUMN_TYPE + " INTEGER, " +
-            COLUMN_WALLET + " INTEGER, " +
-            COLUMN_WALLET_S + " INTEGER, " +
+            COLUMN_WALLET_1 + " INTEGER, " +
+            COLUMN_WALLET_2 + " INTEGER, " +
             COLUMN_COMMENTS + " TEXT" +
             ")";
 
