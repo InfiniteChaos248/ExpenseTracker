@@ -1,12 +1,10 @@
 package com.example.myapplication.database.model;
 
-import java.sql.Timestamp;
-
 public class ActivityLog {
 
     private String logDate;
     private String logTime;
-    private Integer amount;
+    private Float amount;
     private Integer category;
     private Integer categoryS;
     private Integer type;
@@ -27,7 +25,7 @@ public class ActivityLog {
     public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
             COLUMN_LOG_DATE + " TEXT, " +
             COLUMN_LOG_TIME + " TEXT, " +
-            COLUMN_AMOUNT + " INTEGER, " +
+            COLUMN_AMOUNT + " REAL, " +
             COLUMN_CATEGORY + " INTEGER, " +
             COLUMN_NEW + " TEXT, " +
             COLUMN_TYPE + " INTEGER, " +
@@ -54,11 +52,11 @@ public class ActivityLog {
         this.logTime = logTime;
     }
 
-    public Integer getAmount() {
+    public Float getAmount() {
         return amount;
     }
 
-    public void setAmount(Integer amount) {
+    public void setAmount(Float amount) {
         this.amount = amount;
     }
 

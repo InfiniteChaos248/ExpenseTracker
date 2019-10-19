@@ -6,20 +6,18 @@ public class Wallet {
 
     private Integer id;
     private String name;
-    private Integer amount;
-    private Timestamp updateTs;
+    private Float amount;
 
     public static final String TABLE_NAME = "wallets";
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_AMOUNT = "amount";
-    public static final String COLUMN_UPDATE_TS = "updateTS";
     public static final String COLUMN_ACTIVE = "active";
-    public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_NAME + " TEXT, " + COLUMN_AMOUNT + " INTEGER, " + COLUMN_UPDATE_TS + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " + COLUMN_ACTIVE + " INTEGER DEFAULT 1)";
+    public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_NAME + " TEXT, " + COLUMN_AMOUNT + " REAL, " + COLUMN_ACTIVE + " INTEGER DEFAULT 1)";
 
     public Wallet() {}
 
-    public Wallet(String name, Integer amount) {
+    public Wallet(String name, Float amount) {
         this.name = name;
         this.amount = amount;
 }
@@ -40,20 +38,12 @@ public class Wallet {
         this.name = name;
     }
 
-    public Integer getAmount() {
+    public Float getAmount() {
         return amount;
     }
 
-    public void setAmount(Integer amount) {
+    public void setAmount(Float amount) {
         this.amount = amount;
-    }
-
-    public Timestamp getUpdateTs() {
-        return updateTs;
-    }
-
-    public void setUpdateTs(Timestamp updateTs) {
-        this.updateTs = updateTs;
     }
 
     public String toString() { return name; }

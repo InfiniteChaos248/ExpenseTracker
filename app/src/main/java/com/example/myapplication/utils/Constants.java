@@ -5,10 +5,11 @@ public class Constants {
     public static final Integer CATEGORY_TYPE_INCOME = 1;
     public static final Integer CATEGORY_TYPE_EXPENSE = 2;
     public static final String EMPTY_STRING = "";
+    public static final Float ZERO_F = 0f;
     public static final Integer ZERO = 0;
 
     public static final String DATE_FORMAT = "yyyy-MM-dd";
-    public static final String TIME_FORMAT = "hh:mm:ss";
+    public static final String TIME_FORMAT = "HH:mm:ss";
 
     public static final Integer LOG_TYPE_NEW_EXPENSE = 1;
     public static final Integer LOG_TYPE_NEW_INCOME = 2;

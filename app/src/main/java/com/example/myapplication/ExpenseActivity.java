@@ -36,7 +36,7 @@ public class ExpenseActivity extends AppCompatActivity {
     private Integer categoryId;
     private String wallet;
     private Integer walletId;
-    private Integer amount;
+    private Float amount;
     private String description;
 
     private DatabaseHelper db;
@@ -47,7 +47,7 @@ public class ExpenseActivity extends AppCompatActivity {
 
     private void refreshWalletList() {
         walletList = new ArrayList<>();
-        walletList.add(new Wallet(Constants.EMPTY_STRING, Constants.ZERO));
+        walletList.add(new Wallet(Constants.EMPTY_STRING, Constants.ZERO_F));
         walletList.addAll(db.getAllWallets());
     }
 
@@ -139,7 +139,7 @@ public class ExpenseActivity extends AppCompatActivity {
                 } else if (amountTextView.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)){
                     Toast.makeText(getApplicationContext(), "Enter amount", Toast.LENGTH_SHORT).show();
                 } else{
-                    amount = Integer.parseInt(amountTextView.getText().toString());
+                    amount = Float.parseFloat(amountTextView.getText().toString());
                     description = descriptionTextView.getText().toString();
                     String toastString = "Wallet: " + wallet + "\nCategory: " + category + "\nAmount: " + amount + " Rs\n" + "Description: " + description;
                     Toast.makeText(getApplicationContext(), toastString, Toast.LENGTH_LONG).show();

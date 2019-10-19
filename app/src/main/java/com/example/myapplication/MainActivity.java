@@ -102,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
         reportButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getApplicationContext(), "Report feature coming soon", Toast.LENGTH_LONG).show();
+                Intent reportIntent = new Intent(getApplicationContext(), ReportActivity.class);
+                startActivity(reportIntent);
             }
         });
 

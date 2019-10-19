@@ -32,7 +32,7 @@ public class TransferActivity extends AppCompatActivity {
     private Integer fromWalletId;
     private String toWallet;
     private Integer toWalletId;
-    private Integer transferAmount;
+    private Float transferAmount;
 
     private DatabaseHelper db;
 
@@ -40,7 +40,7 @@ public class TransferActivity extends AppCompatActivity {
 
     private void refreshWalletList() {
         walletList = new ArrayList<>();
-        walletList.add(new Wallet(Constants.EMPTY_STRING, Constants.ZERO));
+        walletList.add(new Wallet(Constants.EMPTY_STRING, Constants.ZERO_F));
         walletList.addAll(db.getAllWallets());
     }
 
@@ -112,7 +112,7 @@ public class TransferActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Amount not entered", Toast.LENGTH_SHORT).show();
                     return;
                 } else{
-                    transferAmount = Integer.parseInt(amountEditText.getText().toString());
+                    transferAmount = Float.parseFloat(amountEditText.getText().toString());
                     if(transferAmount <= Constants.ZERO){
                         Toast.makeText(getApplicationContext(), "Cannot do empty transfers", Toast.LENGTH_SHORT).show();
                         return;

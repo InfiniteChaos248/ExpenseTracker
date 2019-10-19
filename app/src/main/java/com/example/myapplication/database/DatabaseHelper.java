@@ -20,6 +20,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -62,7 +63,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return values;
     }
 
-    public long insertNewLogForNewWallet(Integer amount, Integer walletId, String walletName) {
+    public long insertNewLogForNewWallet(Float amount, Integer walletId, String walletName) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -79,7 +80,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public long insertNewWallet(String name, Integer amount) {
+    public long insertNewWallet(String name, Float amount) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -119,7 +120,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(Wallet.COLUMN_NAME, name);
-        values.put(Wallet.COLUMN_UPDATE_TS, new Timestamp(System.currentTimeMillis()).toString());
 
         int rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(id)});
 
@@ -141,8 +141,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 Wallet wallet = new Wallet();
                 wallet.setId(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_ID)));
                 wallet.setName(cursor.getString(cursor.getColumnIndex(Wallet.COLUMN_NAME)));
-                wallet.setUpdateTs(Timestamp.valueOf(cursor.getString(cursor.getColumnIndex(Wallet.COLUMN_UPDATE_TS))));
-                wallet.setAmount(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
+                wallet.setAmount(cursor.getFloat(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
 
                 wallets.add(wallet);
             } while (cursor.moveToNext());
@@ -153,7 +152,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public long insertNewLogForWalletTransfer(Integer walletId1, Integer walletId2, Integer amount){
+    public long insertNewLogForWalletTransfer(Integer walletId1, Integer walletId2, Float amount){
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -170,7 +169,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public String walletTransfer(Integer wallet1, Integer wallet2, Integer amount) {
+    public String walletTransfer(Integer wallet1, Integer wallet2, Float amount) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor;
@@ -185,7 +184,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             fromWallet = new Wallet();
             fromWallet.setId(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_ID)));
             fromWallet.setName(cursor.getString(cursor.getColumnIndex(Wallet.COLUMN_NAME)));
-            fromWallet.setAmount(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
+            fromWallet.setAmount(cursor.getFloat(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
         }
         cursor = db.rawQuery("SELECT * FROM " + Wallet.TABLE_NAME + " where " + Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(wallet2)});
         if(cursor.getCount() > 0){
@@ -193,7 +192,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             toWallet = new Wallet();
             toWallet.setId(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_ID)));
             toWallet.setName(cursor.getString(cursor.getColumnIndex(Wallet.COLUMN_NAME)));
-            toWallet.setAmount(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
+            toWallet.setAmount(cursor.getFloat(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
         }
 
         if(fromWallet == null || toWallet == null) {
@@ -206,13 +205,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         values = new ContentValues();
         values.put(Wallet.COLUMN_AMOUNT, fromWallet.getAmount() - amount);
-        values.put(Wallet.COLUMN_UPDATE_TS, new Timestamp(System.currentTimeMillis()).toString());
 
         rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(wallet1)});
 
         values = new ContentValues();
         values.put(Wallet.COLUMN_AMOUNT, toWallet.getAmount() + amount);
-        values.put(Wallet.COLUMN_UPDATE_TS, new Timestamp(System.currentTimeMillis()).toString());
 
         rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(wallet2)});
 
@@ -222,7 +219,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public long insertNewLogForNewIncome(Integer walletId, Integer categoryId, Integer amount, String comments){
+    public long insertNewLogForNewIncome(Integer walletId, Integer categoryId, Float amount, String comments){
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -240,7 +237,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public String newIncome(Integer walletId, Integer categoryId, Integer amount, String comments){
+    public String newIncome(Integer walletId, Integer categoryId, Float amount, String comments){
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor;
@@ -254,7 +251,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             wallet = new Wallet();
             wallet.setId(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_ID)));
             wallet.setName(cursor.getString(cursor.getColumnIndex(Wallet.COLUMN_NAME)));
-            wallet.setAmount(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
+            wallet.setAmount(cursor.getFloat(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
         }
 
         if(wallet == null){
@@ -263,7 +260,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         values = new ContentValues();
         values.put(Wallet.COLUMN_AMOUNT, wallet.getAmount() + amount);
-        values.put(Wallet.COLUMN_UPDATE_TS, new Timestamp(System.currentTimeMillis()).toString());
 
         rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(walletId)});
 
@@ -273,7 +269,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public long insertNewLogForNewExpense(Integer walletId, Integer categoryId, Integer amount, String comments){
+    public long insertNewLogForNewExpense(Integer walletId, Integer categoryId, Float amount, String comments){
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -291,7 +287,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public String newExpense(Integer walletId, Integer categoryId, Integer amount, String comments){
+    public String newExpense(Integer walletId, Integer categoryId, Float amount, String comments){
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor;
@@ -305,7 +301,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             wallet = new Wallet();
             wallet.setId(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_ID)));
             wallet.setName(cursor.getString(cursor.getColumnIndex(Wallet.COLUMN_NAME)));
-            wallet.setAmount(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
+            wallet.setAmount(cursor.getFloat(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
         }
 
         if(wallet == null){
@@ -318,7 +314,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         values = new ContentValues();
         values.put(Wallet.COLUMN_AMOUNT, wallet.getAmount() - amount);
-        values.put(Wallet.COLUMN_UPDATE_TS, new Timestamp(System.currentTimeMillis()).toString());
 
         rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(walletId)});
 
@@ -340,7 +335,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 Category category = new Category();
                 category.setId(cursor.getInt(cursor.getColumnIndex(Category.COLUMN_ID)));
                 category.setName(cursor.getString(cursor.getColumnIndex(Category.COLUMN_NAME)));
-                category.setUpdateTs(Timestamp.valueOf(cursor.getString(cursor.getColumnIndex(Category.COLUMN_UPDATE_TS))));
                 category.setType(cursor.getInt(cursor.getColumnIndex(Category.COLUMN_TYPE)));
 
                 categories.add(category);
@@ -408,7 +402,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(Category.COLUMN_NAME, name);
-        values.put(Category.COLUMN_UPDATE_TS, new Timestamp(System.currentTimeMillis()).toString());
 
         int rows = db.update(Category.TABLE_NAME, values, Category.COLUMN_ID + " = ?", new String[] {Integer.toString(id)});
 

@@ -11,7 +11,8 @@ bugs/glitches:
 double tap, triple tap, other gesture controls
 
 notes:
+need better primary key for log table?
 remove wallet, category needed? How to implement?
-look into react native to develop UI
+look into react native to develop UI (after note: native is good but doesn't feel right for this one)
 better understand activity lifecycle and android app development fundamentals, linux, etc.
 understand how SQLITE works
