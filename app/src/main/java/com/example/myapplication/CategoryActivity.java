@@ -47,7 +47,7 @@ public class CategoryActivity extends AppCompatActivity {
     }
 
     private void refreshCategories() {
-        List<Category> allCategories = db.getAllCategories();
+        List<Category> allCategories = db.getAllCategories(true);
         incomeCategories = new ArrayList<>();
         expenseCategories = new ArrayList<>();
         incomeCategories.add(new Category(Constants.EMPTY_STRING, Constants.CATEGORY_TYPE_INCOME));

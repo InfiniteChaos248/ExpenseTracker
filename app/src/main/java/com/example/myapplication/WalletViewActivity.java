@@ -57,7 +57,7 @@ public class WalletViewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_wallet_view);
 
         db = new DatabaseHelper(this);
-        walletList.addAll(db.getAllWallets());
+        walletList.addAll(db.getAllWallets(true));
 
         wallets = findViewById(R.id.wallets_table);
 

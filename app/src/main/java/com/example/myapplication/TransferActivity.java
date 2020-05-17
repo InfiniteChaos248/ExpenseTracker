@@ -41,7 +41,7 @@ public class TransferActivity extends AppCompatActivity {
     private void refreshWalletList() {
         walletList = new ArrayList<>();
         walletList.add(new Wallet(Constants.EMPTY_STRING, Constants.ZERO_F));
-        walletList.addAll(db.getAllWallets());
+        walletList.addAll(db.getAllWallets(true));
     }
 
     @Override

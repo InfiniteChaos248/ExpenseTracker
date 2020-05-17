@@ -48,11 +48,11 @@ public class ExpenseActivity extends AppCompatActivity {
     private void refreshWalletList() {
         walletList = new ArrayList<>();
         walletList.add(new Wallet(Constants.EMPTY_STRING, Constants.ZERO_F));
-        walletList.addAll(db.getAllWallets());
+        walletList.addAll(db.getAllWallets(true));
     }
 
     private void refreshCategories() {
-        List<Category> allCategories = db.getAllCategories();
+        List<Category> allCategories = db.getAllCategories(true);
         incomeCategories = new ArrayList<>();
         expenseCategories = new ArrayList<>();
         incomeCategories.add(new Category(Constants.EMPTY_STRING, Constants.CATEGORY_TYPE_INCOME));

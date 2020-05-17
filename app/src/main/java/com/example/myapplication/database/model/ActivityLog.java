@@ -1,7 +1,10 @@
 package com.example.myapplication.database.model;
 
+import android.database.Cursor;
+
 public class ActivityLog {
 
+    private  Integer id;
     private String logDate;
     private String logTime;
     private Float amount;
@@ -13,6 +16,7 @@ public class ActivityLog {
     private String comments;
 
     public static final String TABLE_NAME = "logs";
+    public static final String COLUMN_ID = "id";
     public static final String COLUMN_LOG_DATE = "log_date";
     public static final String COLUMN_LOG_TIME = "log_time";
     public static final String COLUMN_AMOUNT = "amount";
@@ -23,6 +27,7 @@ public class ActivityLog {
     public static final String COLUMN_WALLET_2 = "wallet2";
     public static final String COLUMN_COMMENTS = "comments";
     public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+            COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_LOG_DATE + " TEXT, " +
             COLUMN_LOG_TIME + " TEXT, " +
             COLUMN_AMOUNT + " REAL, " +
@@ -35,6 +40,27 @@ public class ActivityLog {
             ")";
 
     public ActivityLog() {}
+
+    public ActivityLog(Cursor cursor) {
+        this.id = cursor.getInt(0);
+        this.logDate = cursor.getString(1);
+        this.logTime = cursor.getString(2);
+        this.amount = cursor.getFloat(3);
+        this.category = cursor.getInt(4);
+        this.categoryS = cursor.getInt(5);
+        this.type = cursor.getInt(6);
+        this.wallet = cursor.getInt(7);
+        this.walletS = cursor.getInt(8);
+        this.comments = cursor.getString(9);
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getLogDate() {
         return logDate;

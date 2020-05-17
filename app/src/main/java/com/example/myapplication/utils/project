@@ -6,13 +6,18 @@ UI (obviously)
 clear entries or go back on submit
 better error handling
 code refactoring
+remove wallet, category needed? How to implement?
+cursor while displaying report, filtering (date range, log type), column selection
+delete log -> rollback changes
+edit log date
 
 bugs/glitches:
 double tap, triple tap, other gesture controls
 
 notes:
-need better primary key for log table?
-remove wallet, category needed? How to implement?
-look into react native to develop UI (after note: native is good but doesn't feel right for this one)
+look into react native to develop UI (after note: native is good but doesn't feel right for this one, another note: Have I come too far into Java and XML to go back now)
 better understand activity lifecycle and android app development fundamentals, linux, etc.
 understand how SQLITE works
+
+completed:
+add app icon

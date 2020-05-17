@@ -7,6 +7,7 @@ public class Wallet {
     private Integer id;
     private String name;
     private Float amount;
+    private Boolean active;
 
     public static final String TABLE_NAME = "wallets";
     public static final String COLUMN_ID = "id";
@@ -48,4 +49,11 @@ public class Wallet {
 
     public String toString() { return name; }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 }

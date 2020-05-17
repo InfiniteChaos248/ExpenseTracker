@@ -7,6 +7,7 @@ public class Category {
     private Integer id;
     private String name;
     private Integer type;
+    private Boolean active;
 
     public static final String TABLE_NAME = "categories";
     public static final String COLUMN_ID = "id";
@@ -48,4 +49,11 @@ public class Category {
 
     public String toString() { return name; }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 }

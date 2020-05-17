@@ -7,6 +7,9 @@
     <string name="main_button_5">Transfer between wallets</string>
     <string name="main_button_6">Add/Modify Wallet</string>
     <string name="main_button_7">View Wallets</string>
+    <string name="main_button_db_manager">Database Manager</string>
+    <string name="main_button_json">DB to JSON</string>
+    <string name="main_button_clear_db">Clear Database</string>
     <string name="expense_heading_0">1. Select a wallet</string>
     <string name="expense_heading_1">2. Select a category</string>
     <string name="expense_heading_2">3. Enter amount</string>

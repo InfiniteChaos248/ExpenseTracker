@@ -8,19 +8,21 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.myapplication.MainActivity;
 import com.example.myapplication.database.model.ActivityLog;
 import com.example.myapplication.database.model.Wallet;
 import com.example.myapplication.database.model.Category;
 import com.example.myapplication.utils.Constants;
+import com.google.gson.Gson;
 
-import java.sql.Timestamp;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -61,6 +63,58 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(ActivityLog.COLUMN_LOG_DATE, dateFormat.format(new Date()));
         values.put(ActivityLog.COLUMN_LOG_TIME, timeFormat.format(new Date()));
         return values;
+    }
+
+    public void clearDatabase() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.execSQL("DELETE FROM " + Wallet.TABLE_NAME + ";");
+        db.execSQL("DELETE FROM " + Category.TABLE_NAME + ";");
+        db.execSQL("DELETE FROM " + ActivityLog.TABLE_NAME + ";");
+        db.execSQL("DELETE FROM SQLITE_SEQUENCE;");
+    }
+
+    public String saveDbAsJson() {
+
+        List<Category> categories = getAllCategories(false);
+        List<Wallet> wallets = getAllWallets(false);
+        List<ActivityLog> logs = fetchLogs(true);
+        Map<String, Object> mapping = new HashMap<>();
+        mapping.put("categories", categories);
+        mapping.put("wallets", wallets);
+        mapping.put("logs", logs);
+        Gson gson = new Gson();
+        String json = gson.toJson(mapping);
+        return json;
+
+    }
+
+    public List<ActivityLog> fetchLogs(Boolean allTypes) {
+
+        String selection = allTypes ? null : "type in (1,2,3)";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(ActivityLog.TABLE_NAME, new String[] {
+                ActivityLog.COLUMN_ID,
+                ActivityLog.COLUMN_LOG_DATE,
+                ActivityLog.COLUMN_LOG_TIME,
+                ActivityLog.COLUMN_AMOUNT,
+                ActivityLog.COLUMN_CATEGORY,
+                ActivityLog.COLUMN_NEW,
+                ActivityLog.COLUMN_TYPE,
+                ActivityLog.COLUMN_WALLET_1,
+                ActivityLog.COLUMN_WALLET_2,
+                ActivityLog.COLUMN_COMMENTS
+        }, selection, null,null, null, null);
+        cursor.moveToFirst();
+        List<ActivityLog> logList = new ArrayList<>();
+        ActivityLog log;
+        while(!cursor.isAfterLast()){
+            log = new ActivityLog(cursor);
+            logList.add(log);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return logList;
+
     }
 
     public long insertNewLogForNewWallet(Float amount, Integer walletId, String walletName) {
@@ -129,11 +183,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public List<Wallet> getAllWallets() {
+    public List<Wallet> getAllWallets(Boolean active) {
 
         List<Wallet> wallets = new ArrayList<>();
 
-        String query = "SELECT * FROM " + Wallet.TABLE_NAME + " WHERE " + Wallet.COLUMN_ACTIVE + " = 1 ORDER BY " + Wallet.COLUMN_ID;
+        String activeWalletQuery = "SELECT * FROM " + Wallet.TABLE_NAME + " WHERE " + Wallet.COLUMN_ACTIVE + " = 1 ORDER BY " + Wallet.COLUMN_ID;
+        String allWalletQuery = "SELECT * FROM " + Wallet.TABLE_NAME + " ORDER BY " + Wallet.COLUMN_ID;
+        String query = active ? activeWalletQuery : allWalletQuery;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.moveToFirst()) {
@@ -142,10 +198,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 wallet.setId(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_ID)));
                 wallet.setName(cursor.getString(cursor.getColumnIndex(Wallet.COLUMN_NAME)));
                 wallet.setAmount(cursor.getFloat(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
+                wallet.setActive(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_ACTIVE)) == 1);
 
                 wallets.add(wallet);
             } while (cursor.moveToNext());
         }
+        cursor.close();
         db.close();
 
         return wallets;
@@ -323,11 +381,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public List<Category> getAllCategories() {
+    public List<Category> getAllCategories(Boolean active) {
 
         List<Category> categories = new ArrayList<>();
 
-        String query = "SELECT * FROM " + Category.TABLE_NAME + " WHERE " + Category.COLUMN_ACTIVE + " = 1 ORDER BY " + Category.COLUMN_ID;
+        String activeCategoryQuery = "SELECT * FROM " + Category.TABLE_NAME + " WHERE " + Category.COLUMN_ACTIVE + " = 1 ORDER BY " + Category.COLUMN_ID;
+        String allCategoryQuery = "SELECT * FROM " + Category.TABLE_NAME + " ORDER BY " + Category.COLUMN_ID;
+        String query = active ? activeCategoryQuery : allCategoryQuery;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.moveToFirst()) {
@@ -336,10 +396,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 category.setId(cursor.getInt(cursor.getColumnIndex(Category.COLUMN_ID)));
                 category.setName(cursor.getString(cursor.getColumnIndex(Category.COLUMN_NAME)));
                 category.setType(cursor.getInt(cursor.getColumnIndex(Category.COLUMN_TYPE)));
+                category.setActive(cursor.getInt(cursor.getColumnIndex(Category.COLUMN_ACTIVE)) == 1);
 
                 categories.add(category);
             } while (cursor.moveToNext());
         }
+        cursor.close();
         db.close();
 
         return categories;
