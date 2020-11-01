@@ -14,6 +14,7 @@
     <string name="expense_heading_1">2. Select a category</string>
     <string name="expense_heading_2">3. Enter amount</string>
     <string name="expense_heading_3">4. Enter a description or comment</string>
+    <string name="expense_heading_4">5. Tap to change Date or Time</string>
     <string name="income_radio">income</string>
     <string name="expense_radio">expense</string>
     <string name="category_heading_1">1. Select a category type</string>

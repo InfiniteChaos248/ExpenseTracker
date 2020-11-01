@@ -277,11 +277,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public long insertNewLogForNewIncome(Integer walletId, Integer categoryId, Float amount, String comments){
+    public long insertNewLogForNewIncome(Integer walletId, Integer categoryId, Float amount, String comments, String date, String time){
 
         SQLiteDatabase db = this.getWritableDatabase();
 
-        ContentValues values = getLogContentValues(Constants.LOG_TYPE_NEW_INCOME);
+        ContentValues values = new ContentValues();
+        values.put(ActivityLog.COLUMN_TYPE, Constants.LOG_TYPE_NEW_INCOME);
+        values.put(ActivityLog.COLUMN_LOG_DATE, date);
+        values.put(ActivityLog.COLUMN_LOG_TIME, time);
         values.put(ActivityLog.COLUMN_WALLET_1, walletId);
         values.put(ActivityLog.COLUMN_CATEGORY, categoryId);
         values.put(ActivityLog.COLUMN_AMOUNT, amount);
@@ -295,7 +298,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public String newIncome(Integer walletId, Integer categoryId, Float amount, String comments){
+    public String newIncome(Integer walletId, Integer categoryId, Float amount, String comments, String date, String time){
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor;
@@ -321,17 +324,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(walletId)});
 
-        insertNewLogForNewIncome(walletId, categoryId, amount, comments);
+        insertNewLogForNewIncome(walletId, categoryId, amount, comments, date, time);
 
         return "New income logged successfully";
 
     }
 
-    public long insertNewLogForNewExpense(Integer walletId, Integer categoryId, Float amount, String comments){
+    public long insertNewLogForNewExpense(Integer walletId, Integer categoryId, Float amount, String comments, String date, String time){
 
         SQLiteDatabase db = this.getWritableDatabase();
 
-        ContentValues values = getLogContentValues(Constants.LOG_TYPE_NEW_EXPENSE);
+        ContentValues values = new ContentValues();
+        values.put(ActivityLog.COLUMN_TYPE, Constants.LOG_TYPE_NEW_EXPENSE);
+        values.put(ActivityLog.COLUMN_LOG_DATE, date);
+        values.put(ActivityLog.COLUMN_LOG_TIME, time);
         values.put(ActivityLog.COLUMN_WALLET_1, walletId);
         values.put(ActivityLog.COLUMN_CATEGORY, categoryId);
         values.put(ActivityLog.COLUMN_AMOUNT, amount);
@@ -345,7 +351,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public String newExpense(Integer walletId, Integer categoryId, Float amount, String comments){
+    public String newExpense(Integer walletId, Integer categoryId, Float amount, String comments, String date, String time){
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor;
@@ -375,7 +381,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(walletId)});
 
-        insertNewLogForNewExpense(walletId, categoryId, amount, comments);
+        insertNewLogForNewExpense(walletId, categoryId, amount, comments, date, time);
 
         return "New expense logged successfully";
 

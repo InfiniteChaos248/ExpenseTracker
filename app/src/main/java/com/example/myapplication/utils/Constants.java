@@ -9,7 +9,7 @@ public class Constants {
     public static final Integer ZERO = 0;
 
     public static final String DATE_FORMAT = "yyyy-MM-dd";
-    public static final String TIME_FORMAT = "HH:mm:ss";
+    public static final String TIME_FORMAT = "HH:mm";
 
     public static final Integer LOG_TYPE_NEW_EXPENSE = 1;
     public static final Integer LOG_TYPE_NEW_INCOME = 2;
