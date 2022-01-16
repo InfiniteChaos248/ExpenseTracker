@@ -6,35 +6,41 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.database.DatabaseHelper;
+import com.example.myapplication.exception.AppException;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,18 +52,18 @@ public class MainActivity extends AppCompatActivity {
     private Button transferButton;
     private Button viewWalletButton;
 
+    private static final int FILE_SELECT_CODE = 0;
     private static final int STORAGE_PERMISSION_CODE = 101;
-    public void checkPermission(String permission, int requestCode)
-    {
+
+    public void checkPermission(String permission, int requestCode) {
         if (ContextCompat.checkSelfPermission(MainActivity.this, permission) == PackageManager.PERMISSION_DENIED) {
             // Requesting the permission
-            ActivityCompat.requestPermissions(MainActivity.this, new String[] { permission }, requestCode);
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{permission}, requestCode);
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
-    {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == STORAGE_PERMISSION_CODE) {
             if (grantResults.length > 0
@@ -66,12 +72,49 @@ public class MainActivity extends AppCompatActivity {
                         "Storage Permission Granted",
                         Toast.LENGTH_SHORT)
                         .show();
-            }
-            else {
+            } else {
                 Toast.makeText(MainActivity.this,
                         "Storage Permission Denied",
                         Toast.LENGTH_SHORT)
                         .show();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == FILE_SELECT_CODE && resultCode == Activity.RESULT_OK) {
+            Uri uri = data.getData();
+            JsonObject json = null;
+            try {
+                json = new Gson().fromJson(new InputStreamReader(getContentResolver().openInputStream(uri)), JsonObject.class);
+            } catch (FileNotFoundException e) {
+                Toast.makeText(MainActivity.this,
+                        "File not found",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            } catch (JsonSyntaxException e) {
+                Toast.makeText(MainActivity.this,
+                        "Invalid JSON content",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+            if (json != null) {
+                Log.i("MainActivity", "importing JSON => " + json.toString());
+                DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
+                try {
+                    helper.importDatafromJSON(json);
+                    Toast.makeText(MainActivity.this,
+                            "JSON import successful",
+                            Toast.LENGTH_SHORT)
+                            .show();
+                } catch (AppException e) {
+                    Toast.makeText(MainActivity.this,
+                            "JSON import unsuccessful : " + e.getErrorMessage(),
+                            Toast.LENGTH_SHORT)
+                            .show();
+                }
             }
         }
     }
@@ -95,13 +138,14 @@ public class MainActivity extends AppCompatActivity {
         db.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent manager = new Intent(getApplicationContext(),AndroidDatabaseManager.class);
+                Intent manager = new Intent(getApplicationContext(), AndroidDatabaseManager.class);
                 startActivity(manager);
             }
         });
 
-        TextView api = findViewById(R.id.trigger);
-        api.setOnClickListener(new View.OnClickListener() {
+
+        TextView exportJSONTextView = findViewById(R.id.exportJSON);
+        exportJSONTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -109,9 +153,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        switch (which){
+                        switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
-                                //Yes button clicked
+                                //YES button clicked
                                 DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
                                 String json = helper.saveDbAsJson();
                                 Log.i("API", "fetched db data");
@@ -123,8 +167,7 @@ public class MainActivity extends AppCompatActivity {
                                                 );
 
                                 // Make sure the path directory exists.
-                                if(!path.exists())
-                                {
+                                if (!path.exists()) {
                                     // Make it, if it doesn't exit
                                     path.mkdirs();
                                 }
@@ -132,19 +175,18 @@ public class MainActivity extends AppCompatActivity {
                                 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                                 Date date = new Date();
                                 String fileName = "data-" + dateFormat.format(date);
-                                String fileExtension = ".txt";
+                                String fileExtension = ".json";
 
 
                                 File file = new File(path, fileName + fileExtension);
                                 int i = 1;
-                                while(file.exists()) {
+                                while (file.exists()) {
                                     file = new File(path, fileName + "-" + i++ + fileExtension);
                                 }
 
                                 // Save your stream, don't forget to flush() it before closing it.
 
-                                try
-                                {
+                                try {
                                     file.createNewFile();
                                     FileOutputStream fOut = new FileOutputStream(file);
                                     OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
@@ -154,15 +196,13 @@ public class MainActivity extends AppCompatActivity {
 
                                     fOut.flush();
                                     fOut.close();
-                                }
-                                catch (IOException e)
-                                {
+                                } catch (IOException e) {
                                     Log.e("Exception", "File write failed: " + e.toString());
                                 }
                                 break;
 
                             case DialogInterface.BUTTON_NEGATIVE:
-                                //No button clicked
+                                //NO button clicked
                                 break;
                         }
                     }
@@ -179,9 +219,46 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        TextView importJSONTextView = findViewById(R.id.importJSON);
+        importJSONTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //YES button clicked
+                                Intent chooseFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                                chooseFileIntent.setType("application/json");
+                                startActivityForResult(Intent.createChooser(chooseFileIntent, "Select the JSON file to import"), FILE_SELECT_CODE);
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //NO button clicked
+                                break;
+                        }
+
+                    }
+                };
 
 
-            TextView clear = findViewById(R.id.dbclear);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder
+                        .setMessage("This will overwrite existing data, are you sure?")
+                        .setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener);
+
+                AlertDialog alert = builder.create();
+                alert.show();
+
+            }
+        });
+
+
+        TextView clear = findViewById(R.id.dbclear);
         clear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -189,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
+                        switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
                                 //Yes button clicked
                                 DatabaseHelper helper = new DatabaseHelper(getApplicationContext());

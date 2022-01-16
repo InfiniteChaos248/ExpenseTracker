@@ -12,8 +12,12 @@ import com.example.myapplication.MainActivity;
 import com.example.myapplication.database.model.ActivityLog;
 import com.example.myapplication.database.model.Wallet;
 import com.example.myapplication.database.model.Category;
+import com.example.myapplication.exception.AppException;
 import com.example.myapplication.utils.Constants;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -55,7 +59,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    private ContentValues getLogContentValues(Integer type){
+    private ContentValues getLogContentValues(Integer type) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
         SimpleDateFormat timeFormat = new SimpleDateFormat(Constants.TIME_FORMAT);
         ContentValues values = new ContentValues();
@@ -88,11 +92,81 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    public void importDatafromJSON(JsonObject json) throws AppException {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Gson GSON = new Gson();
+
+        db.beginTransaction();
+        try {
+            db.execSQL("DELETE FROM " + Wallet.TABLE_NAME + ";");
+            db.execSQL("DELETE FROM " + Category.TABLE_NAME + ";");
+            db.execSQL("DELETE FROM " + ActivityLog.TABLE_NAME + ";");
+            db.execSQL("DELETE FROM SQLITE_SEQUENCE;");
+
+            JsonArray wallets = json.getAsJsonArray("wallets");
+            for (JsonElement walletElement : wallets) {
+                Wallet wallet = GSON.fromJson(walletElement, Wallet.class);
+                insertWallet(db, wallet);
+            }
+            JsonArray categories = json.getAsJsonArray("categories");
+            for (JsonElement categoryElement : categories) {
+                Category category = GSON.fromJson(categoryElement, Category.class);
+                insertCategory(db, category);
+            }
+            JsonArray logs = json.getAsJsonArray("logs");
+            for (JsonElement logElement : logs) {
+                ActivityLog log = GSON.fromJson(logElement, ActivityLog.class);
+                insertLog(db, log);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            // Exception => don't set transaction as successful
+            Log.e("DatabaseHelper", e.getMessage(), e);
+            throw new AppException(101, e.getMessage());
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
+    }
+
+    private void insertWallet(SQLiteDatabase db, Wallet wallet) {
+        ContentValues values = new ContentValues();
+        values.put(Wallet.COLUMN_ID, wallet.getId());
+        values.put(Wallet.COLUMN_NAME, wallet.getName());
+        values.put(Wallet.COLUMN_AMOUNT, wallet.getAmount());
+        values.put(Wallet.COLUMN_ACTIVE, wallet.getActive());
+        db.insert(Wallet.TABLE_NAME, null, values);
+    }
+
+    private void insertCategory(SQLiteDatabase db, Category category) {
+        ContentValues values = new ContentValues();
+        values.put(Category.COLUMN_ID, category.getId());
+        values.put(Category.COLUMN_NAME, category.getName());
+        values.put(Category.COLUMN_TYPE, category.getType());
+        values.put(Category.COLUMN_ACTIVE, category.getActive());
+        db.insert(Category.TABLE_NAME, null, values);
+    }
+
+    private void insertLog(SQLiteDatabase db, ActivityLog log) {
+        ContentValues values = new ContentValues();
+        values.put(ActivityLog.COLUMN_ID, log.getId());
+        values.put(ActivityLog.COLUMN_LOG_DATE, log.getLogDate());
+        values.put(ActivityLog.COLUMN_LOG_TIME, log.getLogTime());
+        values.put(ActivityLog.COLUMN_AMOUNT, log.getAmount());
+        values.put(ActivityLog.COLUMN_CATEGORY, log.getCategory());
+        values.put(ActivityLog.COLUMN_NEW, log.getCategoryS());
+        values.put(ActivityLog.COLUMN_TYPE, log.getType());
+        values.put(ActivityLog.COLUMN_WALLET_1, log.getWallet());
+        values.put(ActivityLog.COLUMN_WALLET_2, log.getWalletS());
+        values.put(ActivityLog.COLUMN_COMMENTS, log.getComments());
+        db.insert(ActivityLog.TABLE_NAME, null, values);
+    }
+
     public List<ActivityLog> fetchLogs(Boolean allTypes) {
 
         String selection = allTypes ? null : "type in (1,2,3)";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(ActivityLog.TABLE_NAME, new String[] {
+        Cursor cursor = db.query(ActivityLog.TABLE_NAME, new String[]{
                 ActivityLog.COLUMN_ID,
                 ActivityLog.COLUMN_LOG_DATE,
                 ActivityLog.COLUMN_LOG_TIME,
@@ -103,11 +177,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ActivityLog.COLUMN_WALLET_1,
                 ActivityLog.COLUMN_WALLET_2,
                 ActivityLog.COLUMN_COMMENTS
-        }, selection, null,null, null, null);
+        }, selection, null, null, null, null);
         cursor.moveToFirst();
         List<ActivityLog> logList = new ArrayList<>();
         ActivityLog log;
-        while(!cursor.isAfterLast()){
+        while (!cursor.isAfterLast()) {
             log = new ActivityLog(cursor);
             logList.add(log);
             cursor.moveToNext();
@@ -152,7 +226,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public long insertNewLogForEditWallet(Integer walletId, String newWalletName){
+    public long insertNewLogForEditWallet(Integer walletId, String newWalletName) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -168,14 +242,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public int updateWalletName(Integer id, String name){
+    public int updateWalletName(Integer id, String name) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(Wallet.COLUMN_NAME, name);
 
-        int rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(id)});
+        int rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[]{Integer.toString(id)});
 
         insertNewLogForEditWallet(id, name);
 
@@ -210,7 +284,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public long insertNewLogForWalletTransfer(Integer walletId1, Integer walletId2, Float amount){
+    public long insertNewLogForWalletTransfer(Integer walletId1, Integer walletId2, Float amount) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -236,16 +310,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values;
         int rows;
 
-        cursor = db.rawQuery("SELECT * FROM " + Wallet.TABLE_NAME + " where " + Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(wallet1)});
-        if(cursor.getCount() > 0){
+        cursor = db.rawQuery("SELECT * FROM " + Wallet.TABLE_NAME + " where " + Wallet.COLUMN_ID + " = ?", new String[]{Integer.toString(wallet1)});
+        if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             fromWallet = new Wallet();
             fromWallet.setId(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_ID)));
             fromWallet.setName(cursor.getString(cursor.getColumnIndex(Wallet.COLUMN_NAME)));
             fromWallet.setAmount(cursor.getFloat(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
         }
-        cursor = db.rawQuery("SELECT * FROM " + Wallet.TABLE_NAME + " where " + Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(wallet2)});
-        if(cursor.getCount() > 0){
+        cursor = db.rawQuery("SELECT * FROM " + Wallet.TABLE_NAME + " where " + Wallet.COLUMN_ID + " = ?", new String[]{Integer.toString(wallet2)});
+        if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             toWallet = new Wallet();
             toWallet.setId(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_ID)));
@@ -253,23 +327,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             toWallet.setAmount(cursor.getFloat(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
         }
 
-        if(fromWallet == null || toWallet == null) {
+        if (fromWallet == null || toWallet == null) {
             return "Error while fetching wallet information";
         }
 
-        if(amount > fromWallet.getAmount()){
+        if (amount > fromWallet.getAmount()) {
             return "Insufficient funds";
         }
 
         values = new ContentValues();
         values.put(Wallet.COLUMN_AMOUNT, fromWallet.getAmount() - amount);
 
-        rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(wallet1)});
+        rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[]{Integer.toString(wallet1)});
 
         values = new ContentValues();
         values.put(Wallet.COLUMN_AMOUNT, toWallet.getAmount() + amount);
 
-        rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(wallet2)});
+        rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[]{Integer.toString(wallet2)});
 
         insertNewLogForWalletTransfer(wallet1, wallet2, amount);
 
@@ -277,7 +351,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public long insertNewLogForNewIncome(Integer walletId, Integer categoryId, Float amount, String comments, String date, String time){
+    public long insertNewLogForNewIncome(Integer walletId, Integer categoryId, Float amount, String comments, String date, String time) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -298,7 +372,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public String newIncome(Integer walletId, Integer categoryId, Float amount, String comments, String date, String time){
+    public String newIncome(Integer walletId, Integer categoryId, Float amount, String comments, String date, String time) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor;
@@ -306,8 +380,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values;
         int rows;
 
-        cursor = db.rawQuery("SELECT * FROM " + Wallet.TABLE_NAME + " where " + Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(walletId)});
-        if(cursor.getCount() > 0){
+        cursor = db.rawQuery("SELECT * FROM " + Wallet.TABLE_NAME + " where " + Wallet.COLUMN_ID + " = ?", new String[]{Integer.toString(walletId)});
+        if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             wallet = new Wallet();
             wallet.setId(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_ID)));
@@ -315,14 +389,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             wallet.setAmount(cursor.getFloat(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
         }
 
-        if(wallet == null){
+        if (wallet == null) {
             return "Error while retrieving wallet information";
         }
 
         values = new ContentValues();
         values.put(Wallet.COLUMN_AMOUNT, wallet.getAmount() + amount);
 
-        rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(walletId)});
+        rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[]{Integer.toString(walletId)});
 
         insertNewLogForNewIncome(walletId, categoryId, amount, comments, date, time);
 
@@ -330,7 +404,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public long insertNewLogForNewExpense(Integer walletId, Integer categoryId, Float amount, String comments, String date, String time){
+    public long insertNewLogForNewExpense(Integer walletId, Integer categoryId, Float amount, String comments, String date, String time) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -351,7 +425,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public String newExpense(Integer walletId, Integer categoryId, Float amount, String comments, String date, String time){
+    public String newExpense(Integer walletId, Integer categoryId, Float amount, String comments, String date, String time) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor;
@@ -359,8 +433,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values;
         int rows;
 
-        cursor = db.rawQuery("SELECT * FROM " + Wallet.TABLE_NAME + " where " + Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(walletId)});
-        if(cursor.getCount() > 0){
+        cursor = db.rawQuery("SELECT * FROM " + Wallet.TABLE_NAME + " where " + Wallet.COLUMN_ID + " = ?", new String[]{Integer.toString(walletId)});
+        if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             wallet = new Wallet();
             wallet.setId(cursor.getInt(cursor.getColumnIndex(Wallet.COLUMN_ID)));
@@ -368,18 +442,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             wallet.setAmount(cursor.getFloat(cursor.getColumnIndex(Wallet.COLUMN_AMOUNT)));
         }
 
-        if(wallet == null){
+        if (wallet == null) {
             return "Error while retrieving wallet information";
         }
 
-        if(amount > wallet.getAmount()){
+        if (amount > wallet.getAmount()) {
             return "Insufficient funds";
         }
 
         values = new ContentValues();
         values.put(Wallet.COLUMN_AMOUNT, wallet.getAmount() - amount);
 
-        rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[] {Integer.toString(walletId)});
+        rows = db.update(Wallet.TABLE_NAME, values, Wallet.COLUMN_ID + " = ?", new String[]{Integer.toString(walletId)});
 
         insertNewLogForNewExpense(walletId, categoryId, amount, comments, date, time);
 
@@ -448,7 +522,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public long insertNewLogForEditCategory(Integer categoryId, String newCategoryName){
+    public long insertNewLogForEditCategory(Integer categoryId, String newCategoryName) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -464,14 +538,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public int updateCategoryName(Integer id, String name){
+    public int updateCategoryName(Integer id, String name) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(Category.COLUMN_NAME, name);
 
-        int rows = db.update(Category.TABLE_NAME, values, Category.COLUMN_ID + " = ?", new String[] {Integer.toString(id)});
+        int rows = db.update(Category.TABLE_NAME, values, Category.COLUMN_ID + " = ?", new String[]{Integer.toString(id)});
 
         insertNewLogForEditCategory(id, name);
 
@@ -480,32 +554,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     //for AndroidDatabaseManager
-    public ArrayList<Cursor> getData(String Query){
+    public ArrayList<Cursor> getData(String Query) {
         //get writable database
         SQLiteDatabase sqlDB = this.getWritableDatabase();
-        String[] columns = new String[] { "message" };
+        String[] columns = new String[]{"message"};
         //an array list of cursor to save two cursors one has results from the query
         //other cursor stores error message if any errors are triggered
         ArrayList<Cursor> alc = new ArrayList<Cursor>(2);
-        MatrixCursor Cursor2= new MatrixCursor(columns);
+        MatrixCursor Cursor2 = new MatrixCursor(columns);
         alc.add(null);
         alc.add(null);
 
-        try{
-            String maxQuery = Query ;
+        try {
+            String maxQuery = Query;
             //execute the query results will be save in Cursor c
             Cursor c = sqlDB.rawQuery(maxQuery, null);
 
             //add value to cursor2
-            Cursor2.addRow(new Object[] { "Success" });
+            Cursor2.addRow(new Object[]{"Success"});
 
-            alc.set(1,Cursor2);
+            alc.set(1, Cursor2);
             if (null != c && c.getCount() > 0) {
 
-                alc.set(0,c);
+                alc.set(0, c);
                 c.moveToFirst();
 
-                return alc ;
+                return alc;
             }
             return alc;
         }
@@ -516,12 +590,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //            alc.set(1,Cursor2);
 //            return alc;
 //        }
-        catch(Exception ex){
+        catch (Exception ex) {
             Log.d("printing exception", ex.getMessage());
 
             //if any exceptions are triggered save the error message to cursor an return the arraylist
-            Cursor2.addRow(new Object[] { ""+ex.getMessage() });
-            alc.set(1,Cursor2);
+            Cursor2.addRow(new Object[]{"" + ex.getMessage()});
+            alc.set(1, Cursor2);
             return alc;
         }
     }
