@@ -52,8 +52,8 @@ public class CategoryActivity extends AppCompatActivity {
         expenseCategories = new ArrayList<>();
         incomeCategories.add(new Category(Constants.EMPTY_STRING, Constants.CATEGORY_TYPE_INCOME));
         expenseCategories.add(new Category(Constants.EMPTY_STRING, Constants.CATEGORY_TYPE_EXPENSE));
-        for(Category category : allCategories){
-            if(category.getType() == Constants.CATEGORY_TYPE_INCOME){
+        for (Category category : allCategories) {
+            if (category.getType() == Constants.CATEGORY_TYPE_INCOME) {
                 incomeCategories.add(category);
             } else if (category.getType() == Constants.CATEGORY_TYPE_EXPENSE) {
                 expenseCategories.add(category);
@@ -66,6 +66,8 @@ public class CategoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
 
+        getSupportActionBar().setTitle("Add/Modify Category");
+
         db = new DatabaseHelper(this);
         refreshCategories();
 
@@ -77,10 +79,10 @@ public class CategoryActivity extends AppCompatActivity {
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                if(i == R.id.income_radio){
+                if (i == R.id.income_radio) {
                     isExpense = false;
                     setAdapter(incomeCategories);
-                } else if(i == R.id.expense_radio){
+                } else if (i == R.id.expense_radio) {
                     isExpense = true;
                     setAdapter(expenseCategories);
                 }
@@ -108,11 +110,11 @@ public class CategoryActivity extends AppCompatActivity {
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!newCategoryTextView.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)){
+                if (!newCategoryTextView.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)) {
                     String newName = newCategoryTextView.getText().toString();
                     Integer type = isExpense ? Constants.CATEGORY_TYPE_EXPENSE : Constants.CATEGORY_TYPE_INCOME;
                     String toastText;
-                    if(category.equalsIgnoreCase(Constants.EMPTY_STRING)){
+                    if (category.equalsIgnoreCase(Constants.EMPTY_STRING)) {
                         toastText = "Adding new category : ";
                         db.insertNewCategory(newName, type);
                         refreshCategories();
@@ -126,7 +128,7 @@ public class CategoryActivity extends AppCompatActivity {
                     toastText += newName;
                     toastText += " to " + (isExpense ? ("expense") : ("income"));
                     Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_LONG).show();
-                } else{
+                } else {
                     Toast.makeText(getApplicationContext(), "Type new category name", Toast.LENGTH_LONG).show();
                 }
             }

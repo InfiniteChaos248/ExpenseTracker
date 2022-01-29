@@ -2,8 +2,14 @@ package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -16,12 +22,21 @@ import com.example.myapplication.database.model.ActivityLog;
 import com.example.myapplication.database.model.Category;
 import com.example.myapplication.database.model.Wallet;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ReportActivity extends AppCompatActivity {
+
+    private static final int UPDATE_DELETE_ACTIVITY_CODE = 100;
 
     private TableLayout table;
     TableRow.LayoutParams tableRowParams;
@@ -32,9 +47,19 @@ public class ReportActivity extends AppCompatActivity {
     private Map<Integer, String> walletNames = new HashMap<>();
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == UPDATE_DELETE_ACTIVITY_CODE) {
+            recreate();
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report);
+
+        getSupportActionBar().setTitle("Report");
 
         db = new DatabaseHelper(this);
 
@@ -54,7 +79,7 @@ public class ReportActivity extends AppCompatActivity {
         for (Category category : categories) {
             categoryNames.put(category.getId(), category.getName());
         }
-        for(Wallet wallet : wallets) {
+        for (Wallet wallet : wallets) {
             walletNames.put(wallet.getId(), wallet.getName());
         }
 
@@ -65,16 +90,20 @@ public class ReportActivity extends AppCompatActivity {
         table.removeAllViews();
 
         List<String> columnNames = new ArrayList<>();
-        columnNames.add("Date");columnNames.add("Wallet");columnNames.add("Amount");columnNames.add("Category");columnNames.add("Comments");
+        columnNames.add("Date");
+        columnNames.add("Wallet");
+        columnNames.add("Amount");
+        columnNames.add("Category");
+        columnNames.add("Comments");
 
         tableRowParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT);
         tableRowParams.setMargins(0, 0, 2, 0);
 
         TableRow headerRow = new TableRow(getApplicationContext());
         headerRow.setBackgroundColor(Color.BLACK);
-        headerRow.setPadding(0, 2, 0, 2);
+        headerRow.setPadding(4, 4, 4, 4);
 
-        for(String columnName : columnNames){
+        for (String columnName : columnNames) {
             LinearLayout cell = new LinearLayout(this);
             cell.setBackgroundColor(Color.WHITE);
             cell.setLayoutParams(tableRowParams);
@@ -91,32 +120,90 @@ public class ReportActivity extends AppCompatActivity {
         table.addView(headerRow);
 
         List<ActivityLog> logs = db.fetchLogs(false);
-        for(ActivityLog log : logs) {
+        for (ActivityLog log : logs) {
 
             TableRow row = new TableRow(getApplicationContext());
+            row.setBackgroundColor(Color.BLACK);
+            row.setPadding(4, 4, 4, 4);
 
-            for(String columnName : columnNames){
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE:
+                                    //'update/delete' button clicked
+                                    Intent updateDeleteIntent = new Intent(getApplicationContext(), UpdateDeleteActivity.class);
+                                    Bundle bundle = new Bundle();
+                                    bundle.putSerializable("activity_log", log);
+                                    updateDeleteIntent.putExtras(bundle);
+                                    startActivityForResult(updateDeleteIntent, UPDATE_DELETE_ACTIVITY_CODE);
+                                    break;
+
+                                case DialogInterface.BUTTON_NEGATIVE:
+                                    //'cancel' button clicked
+                                    break;
+                            }
+                        }
+                    };
+
+                    String operation = "";
+                    if (log.getType() == 1) {
+                        operation = "expense";
+                    } else if (log.getType() == 2) {
+                        operation = "income";
+                    } else if (log.getType() == 3) {
+                        operation = "wallet transfer";
+                    }
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(ReportActivity.this);
+                    builder
+                            .setMessage(operation + " log on date: " + log.getLogDate() + " of amount: " + log.getAmount() + " with wallet: " + walletNames.get(log.getWallet()))
+                            .setPositiveButton("update/delete", dialogClickListener)
+                            .setNegativeButton("cancel", dialogClickListener);
+
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
+            });
+
+            for (String columnName : columnNames) {
                 LinearLayout cell = new LinearLayout(this);
                 cell.setBackgroundColor(Color.WHITE);
                 cell.setLayoutParams(tableRowParams);
-                if(columnName.equals("Date")) {
-                    cell.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Toast toast=Toast. makeText(getApplicationContext(),"Change log date feature coming soon",Toast. LENGTH_SHORT);
-                            toast.show();
-                        }
-                    });
-                }
                 String cellContent;
-                switch (columnName){
-                    case "Date": {cellContent = log.getLogDate(); break;}
-                    case "Time": {cellContent = log.getLogTime(); break;}
-                    case "Wallet": {cellContent = walletNames.get(log.getWallet()); break;}
-                    case "Amount": {cellContent = Float.toString(log.getAmount()); break;}
-                    case "Category": {cellContent = categoryNames.get(log.getCategory()); break;}
-                    case "Comments": {cellContent = log.getComments(); break;}
-                    default: {cellContent = ""; break;}
+                switch (columnName) {
+                    case "Date": {
+                        cellContent = log.getLogDate();
+                        break;
+                    }
+                    case "Time": {
+                        cellContent = log.getLogTime();
+                        break;
+                    }
+                    case "Wallet": {
+                        cellContent = walletNames.get(log.getWallet());
+                        break;
+                    }
+                    case "Amount": {
+                        cellContent = Float.toString(log.getAmount());
+                        break;
+                    }
+                    case "Category": {
+                        cellContent = categoryNames.get(log.getCategory());
+                        break;
+                    }
+                    case "Comments": {
+                        cellContent = log.getComments();
+                        break;
+                    }
+                    default: {
+                        cellContent = "";
+                        break;
+                    }
                 }
                 TextView rowColumns = new TextView(getApplicationContext());
                 rowColumns.setPadding(0, 0, 4, 3);

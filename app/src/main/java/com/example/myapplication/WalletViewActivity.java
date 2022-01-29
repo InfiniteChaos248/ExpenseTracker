@@ -56,6 +56,8 @@ public class WalletViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wallet_view);
 
+        getSupportActionBar().setTitle("Wallets");
+
         db = new DatabaseHelper(this);
         walletList.addAll(db.getAllWallets(true));
 
@@ -67,7 +69,7 @@ public class WalletViewActivity extends AppCompatActivity {
         headerRow.addView(getTextView(0, "Amount", Color.WHITE, Typeface.BOLD, Color.BLUE));
         wallets.addView(headerRow, getTblLayoutParams());
 
-        for(Wallet wallet : walletList){
+        for (Wallet wallet : walletList) {
             TableRow tr = new TableRow(this);
             tr.setLayoutParams(getLayoutParams());
             tr.addView(getTextView(wallet.getId(), wallet.getName(), Color.WHITE, Typeface.NORMAL, ContextCompat.getColor(this, R.color.colorAccent)));

@@ -49,6 +49,8 @@ public class TransferActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transfer);
 
+        getSupportActionBar().setTitle("New Wallet Transfer");
+
         db = new DatabaseHelper(this);
         refreshWalletList();
 
@@ -96,29 +98,29 @@ public class TransferActivity extends AppCompatActivity {
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(fromWallet.equalsIgnoreCase(Constants.EMPTY_STRING)){
+                if (fromWallet.equalsIgnoreCase(Constants.EMPTY_STRING)) {
                     Toast.makeText(getApplicationContext(), "Choose a wallet to transfer from", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(toWallet.equalsIgnoreCase(Constants.EMPTY_STRING)){
+                if (toWallet.equalsIgnoreCase(Constants.EMPTY_STRING)) {
                     Toast.makeText(getApplicationContext(), "Choose a wallet to transfer to", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(toWallet == fromWallet){
+                if (toWallet == fromWallet) {
                     Toast.makeText(getApplicationContext(), "Same wallet transfer not applicable", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(amountEditText.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)){
+                if (amountEditText.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)) {
                     Toast.makeText(getApplicationContext(), "Amount not entered", Toast.LENGTH_SHORT).show();
                     return;
-                } else{
+                } else {
                     transferAmount = Float.parseFloat(amountEditText.getText().toString());
-                    if(transferAmount <= Constants.ZERO){
+                    if (transferAmount <= Constants.ZERO) {
                         Toast.makeText(getApplicationContext(), "Cannot do empty transfers", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     Toast.makeText(getApplicationContext(), "Transferring amount " + transferAmount + " from " + fromWallet + " to " + toWallet, Toast.LENGTH_SHORT).show();
-                    String responseMessage = db.walletTransfer(fromWalletId, toWalletId, transferAmount);
+                    String responseMessage = db.walletTransfer(null, fromWalletId, toWalletId, transferAmount, null, null, null);
                     Toast.makeText(getApplicationContext(), responseMessage, Toast.LENGTH_LONG).show();
                 }
             }

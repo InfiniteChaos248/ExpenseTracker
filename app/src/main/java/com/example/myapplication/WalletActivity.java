@@ -44,7 +44,7 @@ public class WalletActivity extends AppCompatActivity {
         walletList.addAll(db.getAllWallets(true));
     }
 
-    private void refreshWalletAdapter(){
+    private void refreshWalletAdapter() {
         walletAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, walletList);
         walletAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         walletSpinner.setAdapter(walletAdapter);
@@ -54,6 +54,8 @@ public class WalletActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wallet);
+
+        getSupportActionBar().setTitle("Add/Modify Wallet");
 
         amountTextView = findViewById(R.id.amount);
         nameTextView = findViewById(R.id.wallet_name);
@@ -84,19 +86,19 @@ public class WalletActivity extends AppCompatActivity {
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(nameTextView.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)) {
+                if (nameTextView.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)) {
                     Toast.makeText(getApplicationContext(), "Enter a new name", Toast.LENGTH_SHORT).show();
-                } else if (walletName.isEmpty() && amountTextView.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)){
+                } else if (walletName.isEmpty() && amountTextView.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)) {
                     Toast.makeText(getApplicationContext(), "Enter amount", Toast.LENGTH_SHORT).show();
-                } else{
-                    if(amountTextView.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)){
+                } else {
+                    if (amountTextView.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)) {
                         amount = 0f;
-                    } else{
+                    } else {
                         amount = Float.parseFloat(amountTextView.getText().toString());
                     }
                     name = nameTextView.getText().toString();
                     String toastString;
-                    if(walletName.isEmpty()){
+                    if (walletName.isEmpty()) {
                         toastString = "Adding new wallet \"" + name + "\" with initial amount " + amount;
                         db.insertNewWallet(name, amount);
                         refreshWalletList();

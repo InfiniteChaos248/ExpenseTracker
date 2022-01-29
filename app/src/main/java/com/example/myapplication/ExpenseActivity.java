@@ -83,7 +83,7 @@ public class ExpenseActivity extends AppCompatActivity implements DatePickerDial
         super.onStop();
         try {
             unregisterReceiver(timeBroadcastReceiver);
-        } catch(Exception e) {
+        } catch (Exception e) {
             Log.e("unregister", "receiver already unregistered");
             e.printStackTrace();
         }
@@ -105,8 +105,8 @@ public class ExpenseActivity extends AppCompatActivity implements DatePickerDial
         expenseCategories = new ArrayList<>();
         incomeCategories.add(new Category(Constants.EMPTY_STRING, Constants.CATEGORY_TYPE_INCOME));
         expenseCategories.add(new Category(Constants.EMPTY_STRING, Constants.CATEGORY_TYPE_EXPENSE));
-        for(Category category : allCategories){
-            if(category.getType() == Constants.CATEGORY_TYPE_INCOME){
+        for (Category category : allCategories) {
+            if (category.getType() == Constants.CATEGORY_TYPE_INCOME) {
                 incomeCategories.add(category);
             } else if (category.getType() == Constants.CATEGORY_TYPE_EXPENSE) {
                 expenseCategories.add(category);
@@ -120,7 +120,7 @@ public class ExpenseActivity extends AppCompatActivity implements DatePickerDial
         categorySpinner.setAdapter(categoryAdapter);
     }
 
-    private void refreshWalletAdapter(){
+    private void refreshWalletAdapter() {
         walletAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, walletList);
         walletAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         walletSpinner.setAdapter(walletAdapter);
@@ -139,7 +139,7 @@ public class ExpenseActivity extends AppCompatActivity implements DatePickerDial
     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
         try {
             unregisterReceiver(timeBroadcastReceiver);
-        } catch(Exception e) {
+        } catch (Exception e) {
             Log.e("unregister", "receiver already unregistered");
             e.printStackTrace();
         }
@@ -156,6 +156,8 @@ public class ExpenseActivity extends AppCompatActivity implements DatePickerDial
 
         final Boolean isExpense = getIntent().getBooleanExtra("expense", true);
 
+        getSupportActionBar().setTitle(isExpense ? "Log New Expense" : "Log New Income");
+
         db = new DatabaseHelper(this);
         refreshWalletList();
         refreshCategories();
@@ -171,7 +173,7 @@ public class ExpenseActivity extends AppCompatActivity implements DatePickerDial
                 Calendar now = Calendar.getInstance();
                 try {
                     Date date = dateFormat.parse(dateTextView.getText().toString());
-                    if(date != null) {
+                    if (date != null) {
                         now.setTime(date);
                     }
                 } catch (ParseException e) {
@@ -189,7 +191,7 @@ public class ExpenseActivity extends AppCompatActivity implements DatePickerDial
                 Calendar now = Calendar.getInstance();
                 try {
                     Date time = timeFormat.parse(timeTextView.getText().toString());
-                    if(time != null) {
+                    if (time != null) {
                         now.setTime(time);
                     }
                 } catch (ParseException e) {
@@ -240,15 +242,15 @@ public class ExpenseActivity extends AppCompatActivity implements DatePickerDial
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(wallet.equalsIgnoreCase(Constants.EMPTY_STRING)) {
+                if (wallet.equalsIgnoreCase(Constants.EMPTY_STRING)) {
                     Toast.makeText(getApplicationContext(), "Select a wallet", Toast.LENGTH_SHORT).show();
-                } else if(category.equalsIgnoreCase(Constants.EMPTY_STRING)) {
+                } else if (category.equalsIgnoreCase(Constants.EMPTY_STRING)) {
                     Toast.makeText(getApplicationContext(), "Select a category", Toast.LENGTH_SHORT).show();
-                } else if (amountTextView.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)){
+                } else if (amountTextView.getText().toString().equalsIgnoreCase(Constants.EMPTY_STRING)) {
                     Toast.makeText(getApplicationContext(), "Enter amount", Toast.LENGTH_SHORT).show();
-                } else{
+                } else {
                     amount = Float.parseFloat(amountTextView.getText().toString());
-                    if(amount <= 0) {
+                    if (amount <= 0) {
                         Toast.makeText(getApplicationContext(), "Enter amount > 0", Toast.LENGTH_SHORT).show();
                     } else {
                         description = descriptionTextView.getText().toString();
@@ -257,11 +259,11 @@ public class ExpenseActivity extends AppCompatActivity implements DatePickerDial
                         String toastString = "Wallet: " + wallet + "\nCategory: " + category + "\nAmount: " + amount + " Rs\n" + "Description: " + description;
                         Toast.makeText(getApplicationContext(), toastString, Toast.LENGTH_LONG).show();
                         String responseMessage;
-                        if(isExpense){
-                            responseMessage = db.newExpense(walletId, categoryId, amount, description, date, time);
+                        if (isExpense) {
+                            responseMessage = db.newExpense(null, walletId, categoryId, amount, description, date, time);
                             Toast.makeText(getApplicationContext(), responseMessage, Toast.LENGTH_LONG).show();
-                        } else{
-                            responseMessage = db.newIncome(walletId, categoryId, amount, description, date, time);
+                        } else {
+                            responseMessage = db.newIncome(null, walletId, categoryId, amount, description, date, time);
                             Toast.makeText(getApplicationContext(), responseMessage, Toast.LENGTH_LONG).show();
                         }
                     }

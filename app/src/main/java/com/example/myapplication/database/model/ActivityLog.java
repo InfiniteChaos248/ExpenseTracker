@@ -2,9 +2,11 @@ package com.example.myapplication.database.model;
 
 import android.database.Cursor;
 
-public class ActivityLog {
+import java.io.Serializable;
 
-    private  Integer id;
+public class ActivityLog implements Serializable {
+
+    private Integer id;
     private String logDate;
     private String logTime;
     private Float amount;
@@ -39,7 +41,8 @@ public class ActivityLog {
             COLUMN_COMMENTS + " TEXT" +
             ")";
 
-    public ActivityLog() {}
+    public ActivityLog() {
+    }
 
     public ActivityLog(Cursor cursor) {
         this.id = cursor.getInt(0);
