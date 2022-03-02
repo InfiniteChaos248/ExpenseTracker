@@ -73,7 +73,7 @@ public class WalletViewActivity extends AppCompatActivity {
             TableRow tr = new TableRow(this);
             tr.setLayoutParams(getLayoutParams());
             tr.addView(getTextView(wallet.getId(), wallet.getName(), Color.WHITE, Typeface.NORMAL, ContextCompat.getColor(this, R.color.colorAccent)));
-            tr.addView(getTextView(wallet.getId() + walletList.size(), Float.toString(wallet.getAmount()), Color.WHITE, Typeface.NORMAL, ContextCompat.getColor(this, R.color.colorAccent)));
+            tr.addView(getTextView(wallet.getId() + walletList.size(), String.format("%.2f", wallet.getAmount()), Color.WHITE, Typeface.NORMAL, ContextCompat.getColor(this, R.color.colorAccent)));
             wallets.addView(tr, getTblLayoutParams());
         }
 

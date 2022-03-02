@@ -176,7 +176,7 @@ public class UpdateDeleteActivity extends AppCompatActivity implements DatePicke
         logTextView.setText(isTransfer ? "wallet transfer" : isExpense ? "expense" : "income");
 
         amountTextView = findViewById(R.id.edit_amount);
-        amountTextView.setText(activityLog.getAmount().toString());
+        amountTextView.setText(String.format("%.2f", activityLog.getAmount()));
 
         descriptionTextView = findViewById(R.id.edit_description);
         descriptionTextView.setText(activityLog.getComments());

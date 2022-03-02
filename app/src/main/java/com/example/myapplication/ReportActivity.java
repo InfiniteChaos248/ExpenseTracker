@@ -161,7 +161,7 @@ public class ReportActivity extends AppCompatActivity {
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(ReportActivity.this);
                     builder
-                            .setMessage(operation + " log on date: " + log.getLogDate() + " of amount: " + log.getAmount() + " with wallet: " + walletNames.get(log.getWallet()))
+                            .setMessage(operation + " log on date: " + log.getLogDate() + " of amount: " + String.format("%.2f", log.getAmount()) + " with wallet: " + walletNames.get(log.getWallet()))
                             .setPositiveButton("update/delete", dialogClickListener)
                             .setNegativeButton("cancel", dialogClickListener);
 
@@ -189,7 +189,7 @@ public class ReportActivity extends AppCompatActivity {
                         break;
                     }
                     case "Amount": {
-                        cellContent = Float.toString(log.getAmount());
+                        cellContent = String.format("%.2f", log.getAmount());
                         break;
                     }
                     case "Category": {
