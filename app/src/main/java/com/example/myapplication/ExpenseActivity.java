@@ -144,7 +144,7 @@ public class ExpenseActivity extends AppCompatActivity implements DatePickerDial
             e.printStackTrace();
         }
         Calendar inputTime = Calendar.getInstance();
-        inputTime.set(Calendar.HOUR, hour);
+        inputTime.set(Calendar.HOUR_OF_DAY, hour);
         inputTime.set(Calendar.MINUTE, minute);
         timeTextView.setText(timeFormat.format(inputTime.getTime()));
     }
@@ -197,7 +197,7 @@ public class ExpenseActivity extends AppCompatActivity implements DatePickerDial
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                TimePickerDialog timePickerDialog = new TimePickerDialog(ExpenseActivity.this, ExpenseActivity.this, now.get(Calendar.HOUR), now.get(Calendar.MINUTE), DateFormat.is24HourFormat(ExpenseActivity.this));
+                TimePickerDialog timePickerDialog = new TimePickerDialog(ExpenseActivity.this, ExpenseActivity.this, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), DateFormat.is24HourFormat(ExpenseActivity.this));
                 timePickerDialog.show();
             }
         });

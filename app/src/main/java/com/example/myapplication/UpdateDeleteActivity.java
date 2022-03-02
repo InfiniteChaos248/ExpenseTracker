@@ -150,7 +150,7 @@ public class UpdateDeleteActivity extends AppCompatActivity implements DatePicke
     @Override
     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
         Calendar inputTime = Calendar.getInstance();
-        inputTime.set(Calendar.HOUR, hour);
+        inputTime.set(Calendar.HOUR_OF_DAY, hour);
         inputTime.set(Calendar.MINUTE, minute);
         timeTextView.setText(timeFormat.format(inputTime.getTime()));
     }
@@ -214,7 +214,7 @@ public class UpdateDeleteActivity extends AppCompatActivity implements DatePicke
                 } catch (ParseException e) {
                     // continue
                 }
-                TimePickerDialog timePickerDialog = new TimePickerDialog(UpdateDeleteActivity.this, UpdateDeleteActivity.this, now.get(Calendar.HOUR), now.get(Calendar.MINUTE), DateFormat.is24HourFormat(UpdateDeleteActivity.this));
+                TimePickerDialog timePickerDialog = new TimePickerDialog(UpdateDeleteActivity.this, UpdateDeleteActivity.this, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), DateFormat.is24HourFormat(UpdateDeleteActivity.this));
                 timePickerDialog.show();
             }
         });

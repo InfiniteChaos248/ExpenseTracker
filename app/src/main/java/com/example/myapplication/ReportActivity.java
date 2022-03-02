@@ -29,6 +29,8 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -120,6 +122,7 @@ public class ReportActivity extends AppCompatActivity {
         table.addView(headerRow);
 
         List<ActivityLog> logs = db.fetchLogs(false);
+        Collections.sort(logs, Comparator.comparing(ActivityLog::getLogDate).thenComparing(ActivityLog::getLogTime));
         for (ActivityLog log : logs) {
 
             TableRow row = new TableRow(getApplicationContext());
