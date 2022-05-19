@@ -6,16 +6,72 @@
     android:layout_height="match_parent"
     tools:context=".ReportActivity">
 
-    <ScrollView android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+    <Button
+        android:id="@+id/all_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="@string/report_button_all_time"
+        app:layout_constraintBaseline_toBaselineOf="@+id/today"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/today"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/report_button_today"
+        app:layout_constraintStart_toEndOf="@+id/all_time"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="411dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/report_info"
+        app:layout_constraintStart_toStartOf="@+id/report_info"
+        app:layout_constraintTop_toBottomOf="@+id/apply_filter"
+        tools:ignore="SpeakableTextPresentCheck">
+
         <TableLayout
             android:id="@+id/report"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="0dp"
-            android:stretchColumns="*">
-        </TableLayout>
+            android:stretchColumns="*"></TableLayout>
     </ScrollView>
 
+    <TextView
+        android:id="@+id/report_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="13dp"
+        android:layout_marginLeft="13dp"
+        android:text=""
+        app:layout_constraintBottom_toTopOf="@+id/scrollView2"
+        app:layout_constraintStart_toEndOf="@+id/today" />
+
+    <TextView
+        android:id="@+id/log_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="10dp"
+        android:text=""
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/all_time" />
+
+    <Button
+        android:id="@+id/apply_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="13dp"
+        android:text="@string/report_button_apply_filter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/log_date" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

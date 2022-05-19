@@ -27,4 +27,7 @@
     <string name="transfer_heading_1">1. From</string>
     <string name="transfer_heading_2">2. To</string>
     <string name="transfer_heading_3">3. Enter transfer amount</string>
+    <string name="report_button_all_time">all time</string>
+    <string name="report_button_today">today</string>
+    <string name="report_button_apply_filter">apply filter</string>
 </resources>
