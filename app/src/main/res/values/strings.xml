@@ -30,4 +30,6 @@
     <string name="report_button_all_time">all time</string>
     <string name="report_button_today">today</string>
     <string name="report_button_apply_filter">apply filter</string>
+    <string name="report_button_prev">&lt;-</string>
+    <string name="report_button_next">-&gt;</string>
 </resources>

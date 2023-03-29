@@ -34,6 +34,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -62,6 +63,9 @@ public class ReportActivity extends AppCompatActivity implements DatePickerDialo
 
     private TextView reportInfoTextView;
     private TextView reportDateSelectTextView;
+
+    private TextView reportPreviousDateTextView;
+    private TextView reportNextDateTextView;
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
 
@@ -92,7 +96,7 @@ public class ReportActivity extends AppCompatActivity implements DatePickerDialo
         reportInfoTextView = findViewById(R.id.report_info);
 
         reportDateSelectTextView = findViewById(R.id.log_date);
-        reportDateSelectTextView.setText("select date");
+        reportDateSelectTextView.setText(LocalDate.now().toString());
         reportDateSelectTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -107,6 +111,28 @@ public class ReportActivity extends AppCompatActivity implements DatePickerDialo
                 }
                 DatePickerDialog datePickerDialog = new DatePickerDialog(ReportActivity.this, ReportActivity.this, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
                 datePickerDialog.show();
+            }
+        });
+
+        reportNextDateTextView = findViewById(R.id.date_next);
+        reportNextDateTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LocalDate current = LocalDate.parse(reportDateSelectTextView.getText().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                LocalDate next = current.plusDays(1);
+                reportDateSelectTextView.setText(next.toString());
+                generateReport(next.equals(LocalDate.now()), next.toString());
+            }
+        });
+
+        reportPreviousDateTextView = findViewById(R.id.date_previous);
+        reportPreviousDateTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LocalDate current = LocalDate.parse(reportDateSelectTextView.getText().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                LocalDate previous = current.minusDays(1);
+                reportDateSelectTextView.setText(previous.toString());
+                generateReport(previous.equals(LocalDate.now()), previous.toString());
             }
         });
 
@@ -307,6 +333,18 @@ public class ReportActivity extends AppCompatActivity implements DatePickerDialo
 
         if (logs.isEmpty()) {
             reportInfoTextView.setText("no income/expense logs for applied filter");
+        } else {
+            Float income = 0f;
+            Float expense = 0f;
+            for(ActivityLog log: logs) {
+                if(log.getType() == 1 ) {
+                    expense += log.getAmount();
+                }
+                if(log.getType() == 2 ) {
+                    income += log.getAmount();
+                }
+            }
+            reportInfoTextView.setText("I: " + income + "      E: " + expense);
         }
 
     }
